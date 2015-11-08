@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">TClient</string>
+    <string name="app_name">TwitterClient</string>
     <string name="login_label">Log in</string>
     <string name="title_activity_timeline">Timeline</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_tweet">TweetActivity</string>
+    <string name="text_compose_dialog">Compose</string>
+    <string name="text_compose_hint">Go forth and tweet</string>
 
 </resources>

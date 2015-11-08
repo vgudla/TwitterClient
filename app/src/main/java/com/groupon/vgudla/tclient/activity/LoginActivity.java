@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 
-import com.codepath.apps.tclient.R;
+import com.groupon.vgudla.tclient.R;
 import com.groupon.vgudla.tclient.util.TwitterClient;
 import com.codepath.oauth.OAuthLoginActionBarActivity;
 

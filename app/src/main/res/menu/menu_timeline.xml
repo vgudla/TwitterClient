@@ -4,7 +4,7 @@
     tools:context="com.groupon.vgudla.tclient.activity.TimelineActivity">
     <item
         android:id="@+id/miCompose"
-        android:icon="@drawable/ic_compose"
+        android:icon="@drawable/compose"
         app:showAsAction="ifRoom"
         android:title="Compose"
         android:onClick="onCompose">

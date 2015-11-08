@@ -18,13 +18,31 @@ import com.loopj.android.http.RequestParams;
 public class TwitterClient extends OAuthBaseClient {
 	public static final Class<? extends Api> REST_API_CLASS = TwitterApi.class;
 	public static final String TAG = "TwitterClient";
-	public static final String REST_URL = "https://api.twitter.com/1.1/";
+	public static final String REST_URL = "https://api.twitter.com/1.1";
 	public static final String REST_CONSUMER_KEY = "AkJafU5JGmSnjEIiRitd6tw4M";
 	public static final String REST_CONSUMER_SECRET = "tvk1o4B8wdS7JiJRP29UxFicfHxShchIyFAMWl2QFlc2n9rmiZ";
-	public static final String REST_CALLBACK_URL = "oauth://cpsimpletweets";
+	public static final String REST_CALLBACK_URL = "oauth://cpstweets";
 
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST_CONSUMER_KEY, REST_CONSUMER_SECRET, REST_CALLBACK_URL);
+	}
+
+	public void postFavorite(AsyncHttpResponseHandler handler, long id, boolean isFavorited) {
+		String apiUrl = getApiUrl("favorites/create.json?id=") + id;
+		if (isFavorited) {
+			apiUrl = getApiUrl("favorites/destroy.json?id=") + id;
+		}
+		post(handler, apiUrl);
+	}
+
+	/**
+	 * Method to retweet
+	 * @param handler
+	 * @param id id of tweet to retweet
+	 */
+	public void postReTweet(AsyncHttpResponseHandler handler, long id) {
+		String apiUrl = getApiUrl("statuses/retweet/") + id + ".json";
+		post(handler, apiUrl);
 	}
 
 	/**
@@ -34,10 +52,21 @@ public class TwitterClient extends OAuthBaseClient {
 	 * @param tweet The tweet to post
 	 */
 	public void postTweet(AsyncHttpResponseHandler handler, String tweet) {
-		String apiUrl = getApiUrl("statuses/update.json?status=");
+		String apiUrl = getApiUrl("statuses/update.json?status=") + tweet;
+		post(handler, apiUrl);
+	}
+
+	/**
+	 * Method to reply to a specific tweet
+	 * @param handler
+	 * @param tweet
+	 */
+	public void postReplyTweet(AsyncHttpResponseHandler handler, String tweet, long replyId) {
+		String apiUrl = getApiUrl("statuses/update.json?status=") + tweet;
 		RequestParams params = new RequestParams();
 		params.put("format", "json");
-		client.post(apiUrl + tweet, params, handler);
+		params.put("in_reply_to_status_id", replyId);
+		post(handler, apiUrl);
 	}
 
 	/**
@@ -62,5 +91,11 @@ public class TwitterClient extends OAuthBaseClient {
 		}
 		Log.d(TAG, "Requested URL:" + params.toString());
 		client.get(apiUrl, params, responseHandler);
+	}
+
+	public void post(AsyncHttpResponseHandler handler, String apiUrl) {
+		RequestParams params = new RequestParams();
+		params.put("format", "json");
+		client.post(apiUrl, params, handler);
 	}
 }

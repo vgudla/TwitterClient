@@ -1,5 +1,7 @@
 package com.groupon.vgudla.tclient.activity;
 
+import android.content.Intent;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -7,9 +9,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.codepath.apps.tclient.R;
+import com.groupon.vgudla.tclient.R;
 import com.groupon.vgudla.tclient.TwitterApp;
 import com.groupon.vgudla.tclient.adapters.TweetAdapter;
 import com.groupon.vgudla.tclient.dialogs.ComposeDialog;
@@ -17,10 +21,12 @@ import com.groupon.vgudla.tclient.listeners.EndlessScrollListener;
 import com.groupon.vgudla.tclient.listeners.OnComposeListener;
 import com.groupon.vgudla.tclient.models.Tweet;
 import com.groupon.vgudla.tclient.util.TwitterClient;
+import com.groupon.vgudla.tclient.util.TwitterErrorMessageHelper;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +50,15 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
         twitterClient = TwitterApp.getRestClient();
         tweetAdapter = new TweetAdapter(this, tweets);
         lvTimeline.setAdapter(tweetAdapter);
+        lvTimeline.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Tweet tweet = (Tweet) parent.getItemAtPosition(position);
+                Intent tweetIntent = new Intent(TimelineActivity.this, TweetActivity.class);
+                tweetIntent.putExtra("tweet", tweet);
+                startActivity(tweetIntent);
+            }
+        });
 
         lvTimeline.setOnScrollListener(new EndlessScrollListener() {
             @Override
@@ -53,6 +68,7 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
             }
         });
 
+        lvTimeline.setItemsCanFocus(true);
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         // Setup refresh listener which triggers new data loading
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -130,7 +146,8 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
 
     public void onCompose(MenuItem item) {
         FragmentManager fm = getSupportFragmentManager();
-        ComposeDialog composeDialog = ComposeDialog.newInstance();
+        ComposeDialog composeDialog = ComposeDialog.newInstance(TimelineActivity.class, null);
+        composeDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         composeDialog.show(fm, "fragment_edit_name");
     }
 
@@ -138,13 +155,14 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
     public void onFinishCompose(String inputText) {
         twitterClient.postTweet(new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 getTimeline(true);
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                Log.e(TAG, "Error while posting tweet" + throwable.getStackTrace());
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.e(TAG, TwitterErrorMessageHelper.getErrorMessage(errorResponse));
+                Log.e(TAG, Log.getStackTraceString(throwable));
             }
         }, inputText);
     }

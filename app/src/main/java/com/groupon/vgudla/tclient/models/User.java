@@ -1,13 +1,13 @@
 package com.groupon.vgudla.tclient.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-
-public class User implements Serializable{
+public class User implements Parcelable{
     private String imageUrl;
     private String name;
     private long id;
@@ -51,4 +51,34 @@ public class User implements Serializable{
         }
         return new User(imageUrl, name, id, screenName);
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.imageUrl);
+        dest.writeString(this.name);
+        dest.writeLong(this.id);
+        dest.writeString(this.screenName);
+    }
+
+    private User(Parcel in) {
+        this.imageUrl = in.readString();
+        this.name = in.readString();
+        this.id = in.readLong();
+        this.screenName = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        public User createFromParcel(Parcel source) {
+            return new User(source);
+        }
+
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 }
