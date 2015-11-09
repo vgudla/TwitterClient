@@ -23,7 +23,6 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
 import org.apache.http.Header;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class TweetActivity extends AppCompatActivity implements OnComposeListener {
@@ -71,7 +70,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
             public void onClick(View v) {
                 FragmentManager fm = getSupportFragmentManager();
                 ComposeDialog composeDialog = ComposeDialog.newInstance(TweetActivity.class,
-                        tweet.getUserScreenName());
+                        tweet.getUser().getUserScreenName());
                 composeDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
                 composeDialog.show(fm, "fragment_edit_name");
             }
@@ -132,13 +131,13 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
 
         setFavoriteImage();
         setRetweetImage();
-        if (tweet.getUserProfileUrl() != null) {
-            Picasso.with(this).load(tweet.getUserProfileUrl()).into(profileView);
+        if (tweet.getUser().getUserProfileUrl() != null) {
+            Picasso.with(this).load(tweet.getUser().getUserProfileUrl()).into(profileView);
         }
         tvTweet.setText(tweet.getTweet());
         tvTimestamp.setText(TimeHelper.getAbbreviatedTimeSpan(tweet.getTimestamp()));
-        tvUserName.setText(tweet.getUserName());
-        tvScreenName.setText("@" + tweet.getUserScreenName());
+        tvUserName.setText(tweet.getUser().getUserName());
+        tvScreenName.setText("@" + tweet.getUser().getUserScreenName());
         if (tweet.getMediaUrl() != null) {
             Picasso.with(this).load(tweet.getMediaUrl()).into(ivDetailedView);
         }

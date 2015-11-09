@@ -50,8 +50,35 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
-        lvTimeline = (ListView) findViewById(R.id.lvTimeline);
+        setupViews();
+        getTimeline(false);
+
+    }
+
+    private void setupViews() {
         twitterClient = TwitterApp.getRestClient();
+        setupTimelineView();
+        setupSwipeContainer();
+    }
+
+    private void setupSwipeContainer() {
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getTimeline(true);
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+    }
+
+    private void setupTimelineView() {
+        lvTimeline = (ListView) findViewById(R.id.lvTimeline);
         tweetAdapter = new TweetAdapter(this, tweets);
         lvTimeline.setAdapter(tweetAdapter);
         lvTimeline.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -73,22 +100,6 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
         });
 
         lvTimeline.setItemsCanFocus(true);
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getTimeline(true);
-            }
-        });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-
-        getTimeline(false);
-
     }
 
     private void getTimeline(final boolean refresh) {
@@ -130,7 +141,7 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
             Tweet oldestTweet = tweetAdapter.getItem(tweetAdapter.getCount()-1);
             maxId = oldestTweet.getTweetId();
         }
-        twitterClient.getTimeLine(responseHandler, TWEET_REQUEST_COUNT, maxId, sinceId, refresh);
+        twitterClient.getHomeTimeLine(responseHandler, TWEET_REQUEST_COUNT, maxId, sinceId, refresh);
     }
 
     //Check to see if network is available before making external service calls

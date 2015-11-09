@@ -37,22 +37,17 @@ public class Tweet extends Model implements Parcelable {
     private boolean favorited;
     @Column(name = "retweeted")
     private boolean retweeted;
-    @Column(name = "user_profile_url")
-    private String userProfileUrl;
-    @Column(name = "user_name")
-    private String userName;
-    @Column(name = "user_id")
-    private long userId;
-    @Column(name = "user_screen_name")
-    private String userScreenName;
+    @Column(name = "user")
+    private User user;
 
+    //default constructor needed for Active Android
     public Tweet() {
-
+        super();
     }
 
     public Tweet(String tweet, long id, String timestamp, int retweetCount, String mediaUrl,
-                 String textUrl, int favoriteCount, boolean favorited, boolean retweeted,
-                 String userProfileUrl, String userName, long userId, String userScreenName) {
+                 String textUrl, int favoriteCount, boolean favorited, boolean retweeted, User user) {
+        super();
         this.tweet = tweet;
         this.id = id;
         this.timestamp = timestamp;
@@ -62,10 +57,7 @@ public class Tweet extends Model implements Parcelable {
         this.favoriteCount = favoriteCount;
         this.favorited = favorited;
         this.retweeted = retweeted;
-        this.userProfileUrl = userProfileUrl;
-        this.userName = userName;
-        this.userScreenName = userScreenName;
-        this.userId = userId;
+        this.user = user;
     }
 
     public String getTweet() {
@@ -120,29 +112,14 @@ public class Tweet extends Model implements Parcelable {
         this.retweeted = retweeted;
     }
 
-    public String getUserProfileUrl() {
-        return userProfileUrl;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public long getUserId() {
-        return userId;
-    }
-
-    public String getUserScreenName() {
-        return userScreenName;
+    public User getUser() {
+        return user;
     }
 
     public static Tweet fromJSONObject(JSONObject jsonObject) {
         String tweet = null;
         String timestamp = null;
-        String userProfileUrl = null;
-        String userName = null;
-        String userScreenName = null;
-        long userId = 0;
+        User user = null;
         long id = 0;
         int retweetCount = 0;
         int favoriteCount = 0;
@@ -157,10 +134,7 @@ public class Tweet extends Model implements Parcelable {
             retweetCount = jsonObject.getInt("retweet_count");
             favoriteCount = jsonObject.getInt("favorite_count");
             JSONObject userObject =jsonObject.getJSONObject("user");
-            userProfileUrl = userObject.getString("profile_image_url");
-            userName = userObject.getString("name");
-            userScreenName = userObject.getString("screen_name");
-            userId = userObject.getLong("id");
+            user = User.fromJSONObject(userObject);
             favorited = jsonObject.getBoolean("favorited");
             retweeted = jsonObject.getBoolean("retweeted");
 
@@ -194,7 +168,7 @@ public class Tweet extends Model implements Parcelable {
         Tweet newTweet = new Tweet(tweet, id, timestamp, retweetCount,
                          mediaUrl != null ? mediaUrl.second : null,
                          textUrl != null ? textUrl.second : null, favoriteCount, favorited,
-                         retweeted, userProfileUrl, userName, userId, userScreenName);
+                         retweeted, user);
         newTweet.save();
         return newTweet;
     }
@@ -213,13 +187,16 @@ public class Tweet extends Model implements Parcelable {
         return tweets;
     }
 
+    public static Tweet byId(long tweetId) {
+        return new Select().from(Tweet.class).where("tweet_id = ?", tweetId).executeSingle();
+    }
+
     public static List<Tweet> getAll() {
         return new Select()
                 .from(Tweet.class)
                 .orderBy("timestamp DESC")
                 .execute();
     }
-
 
     @Override
     public int describeContents() {
@@ -237,10 +214,7 @@ public class Tweet extends Model implements Parcelable {
         dest.writeString(this.textUrl);
         dest.writeByte(favorited ? (byte) 1 : (byte) 0);
         dest.writeByte(retweeted ? (byte) 1 : (byte) 0);
-        dest.writeString(this.userProfileUrl);
-        dest.writeString(this.userName);
-        dest.writeLong(this.userId);
-        dest.writeString(this.userScreenName);
+        dest.writeParcelable(this.user, 0);
     }
 
     private Tweet(Parcel in) {
@@ -253,10 +227,7 @@ public class Tweet extends Model implements Parcelable {
         this.textUrl = in.readString();
         this.favorited = in.readByte() != 0;
         this.retweeted = in.readByte() != 0;
-        this.userProfileUrl = in.readString();
-        this.userName = in.readString();
-        this.userId = in.readLong();
-        this.userScreenName = in.readString();
+        this.user = in.readParcelable(User.class.getClassLoader());
     }
 
     public static final Creator<Tweet> CREATOR = new Creator<Tweet>() {

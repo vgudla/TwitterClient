@@ -78,8 +78,8 @@ public class TwitterClient extends OAuthBaseClient {
 	 * @param sinceId Retrieves tweets newer than this id
 	 * @param refresh A flag used to indicate what type of request is to be made
 	 */
-	public void getTimeLine(AsyncHttpResponseHandler responseHandler, int tweetCount, long maxId,
-							long sinceId, boolean refresh) {
+	public void getHomeTimeLine(AsyncHttpResponseHandler responseHandler, int tweetCount, long maxId,
+								long sinceId, boolean refresh) {
 		String apiUrl = getApiUrl("statuses/home_timeline.json");
 		RequestParams params = new RequestParams();
 		params.put("format", "json");
