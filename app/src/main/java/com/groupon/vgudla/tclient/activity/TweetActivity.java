@@ -71,7 +71,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
             public void onClick(View v) {
                 FragmentManager fm = getSupportFragmentManager();
                 ComposeDialog composeDialog = ComposeDialog.newInstance(TweetActivity.class,
-                        tweet.getUser().getScreenName());
+                        tweet.getUserScreenName());
                 composeDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
                 composeDialog.show(fm, "fragment_edit_name");
             }
@@ -92,7 +92,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
                             tweet.setRetweeted(true);
                         }
                         setRetweetImage();
-                        Log.i(TAG, "Retweeted for:" + tweet.getId());
+                        Log.i(TAG, "Retweeted for:" + tweet.getTweetId());
                     }
 
                     @Override
@@ -100,7 +100,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
                         Log.e(TAG, TwitterErrorMessageHelper.getErrorMessage(errorResponse));
                         Log.e(TAG, Log.getStackTraceString(throwable));
                     }
-                }, tweet.getId());
+                }, tweet.getTweetId());
             }
         });
 
@@ -118,7 +118,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
                             tweet.setFavorited(true);
                         }
                         setFavoriteImage();
-                        Log.i(TAG, "Favorited:" + tweet.getId());
+                        Log.i(TAG, "Favorited:" + tweet.getTweetId());
                     }
 
                     @Override
@@ -126,19 +126,19 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
                         Log.e(TAG, TwitterErrorMessageHelper.getErrorMessage(responseBody));
                         Log.e(TAG, Log.getStackTraceString(error));
                     }
-                }, tweet.getId(), tweet.isFavorited());
+                }, tweet.getTweetId(), tweet.isFavorited());
             }
         });
 
         setFavoriteImage();
         setRetweetImage();
-        if (tweet.getUser().getImageUrl() != null) {
-            Picasso.with(this).load(tweet.getUser().getImageUrl()).into(profileView);
+        if (tweet.getUserProfileUrl() != null) {
+            Picasso.with(this).load(tweet.getUserProfileUrl()).into(profileView);
         }
         tvTweet.setText(tweet.getTweet());
         tvTimestamp.setText(TimeHelper.getAbbreviatedTimeSpan(tweet.getTimestamp()));
-        tvUserName.setText(tweet.getUser().getName());
-        tvScreenName.setText("@" + tweet.getUser().getScreenName());
+        tvUserName.setText(tweet.getUserName());
+        tvScreenName.setText("@" + tweet.getUserScreenName());
         if (tweet.getMediaUrl() != null) {
             Picasso.with(this).load(tweet.getMediaUrl()).into(ivDetailedView);
         }
@@ -172,7 +172,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
         twitterClient.postReplyTweet(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Log.i(TAG, "Replied to tweet" + tweet.getId());
+                Log.i(TAG, "Replied to tweet" + tweet.getTweetId());
             }
 
             @Override
@@ -180,7 +180,7 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
                 Log.e(TAG, TwitterErrorMessageHelper.getErrorMessage(errorResponse));
                 Log.e(TAG, Log.getStackTraceString(throwable));
             }
-        }, inputText, tweet.getId());
+        }, inputText, tweet.getTweetId());
     }
 
     private void setFavoriteImage() {

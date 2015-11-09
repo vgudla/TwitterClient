@@ -1,6 +1,9 @@
 package com.groupon.vgudla.tclient.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.groupon.vgudla.tclient.R;
 import com.groupon.vgudla.tclient.TwitterApp;
@@ -88,6 +92,11 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
     }
 
     private void getTimeline(final boolean refresh) {
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "Network not available", Toast.LENGTH_LONG).show();
+            tweetAdapter.addAll(Tweet.getAll());
+            return;
+        }
         JsonHttpResponseHandler responseHandler = new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -100,8 +109,8 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
                     tweetAdapter.addAll(tweetList);
                 }
                 swipeContainer.setRefreshing(false);
-                sinceId = tweetAdapter.getItem(0).getId();
-                maxId = tweetAdapter.getItem(tweetAdapter.getCount()-1).getId();
+                sinceId = tweetAdapter.getItem(0).getTweetId();
+                maxId = tweetAdapter.getItem(tweetAdapter.getCount()-1).getTweetId();
             }
 
             @Override
@@ -116,12 +125,20 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
             tweetAdapter.clear();
         } else if (refresh) {
             Tweet newestTweet = tweetAdapter.getItem(0);
-            sinceId = newestTweet.getId();
+            sinceId = newestTweet.getTweetId();
         } else {
             Tweet oldestTweet = tweetAdapter.getItem(tweetAdapter.getCount()-1);
-            maxId = oldestTweet.getId();
+            maxId = oldestTweet.getTweetId();
         }
         twitterClient.getTimeLine(responseHandler, TWEET_REQUEST_COUNT, maxId, sinceId, refresh);
+    }
+
+    //Check to see if network is available before making external service calls
+    private Boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 
     @Override
