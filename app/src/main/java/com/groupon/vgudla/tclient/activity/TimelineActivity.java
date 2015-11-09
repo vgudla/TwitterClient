@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.groupon.vgudla.tclient.R;
@@ -43,6 +44,7 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
     private List<Tweet> tweets = new ArrayList<>();
     private TweetAdapter tweetAdapter;
     private SwipeRefreshLayout swipeContainer;
+    private ProgressBar progressBarFooter;
     private long maxId=-1;
     private long sinceId = -1;
 
@@ -79,8 +81,8 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
 
     private void setupTimelineView() {
         lvTimeline = (ListView) findViewById(R.id.lvTimeline);
-        tweetAdapter = new TweetAdapter(this, tweets);
-        lvTimeline.setAdapter(tweetAdapter);
+        setupFooterProgressBar(lvTimeline);
+
         lvTimeline.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -98,8 +100,30 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
                 return true;
             }
         });
-
         lvTimeline.setItemsCanFocus(true);
+    }
+
+    // Adds footer to the list default hidden progress
+    private void setupFooterProgressBar(ListView lvItems) {
+        // Inflate the footer
+        View footer = getLayoutInflater().inflate(R.layout.footer_progress, null);
+        // Find the progressbar within footer
+        progressBarFooter = (ProgressBar) footer.findViewById(R.id.pbFooterLoading);
+        // Add footer to ListView before setting adapter
+        lvItems.addFooterView(footer);
+        // Set the adapter AFTER adding footer
+        tweetAdapter = new TweetAdapter(this, tweets);
+        lvTimeline.setAdapter(tweetAdapter);
+    }
+
+    // Show progress
+    private void showProgressBar() {
+        progressBarFooter.setVisibility(View.VISIBLE);
+    }
+
+    // Hide progress
+    private void hideProgressBar() {
+        progressBarFooter.setVisibility(View.GONE);
     }
 
     private void getTimeline(final boolean refresh) {
@@ -122,11 +146,13 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
                 swipeContainer.setRefreshing(false);
                 sinceId = tweetAdapter.getItem(0).getTweetId();
                 maxId = tweetAdapter.getItem(tweetAdapter.getCount()-1).getTweetId();
+                hideProgressBar();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                 Log.e(TAG, "Error while retrieving timeline" + throwable.getStackTrace());
+                hideProgressBar();
             }
         };
 
@@ -142,6 +168,7 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
             maxId = oldestTweet.getTweetId();
         }
         twitterClient.getHomeTimeLine(responseHandler, TWEET_REQUEST_COUNT, maxId, sinceId, refresh);
+        showProgressBar();
     }
 
     //Check to see if network is available before making external service calls
@@ -177,6 +204,11 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
         ComposeDialog composeDialog = ComposeDialog.newInstance(TimelineActivity.class, null);
         composeDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
         composeDialog.show(fm, "fragment_edit_name");
+    }
+
+    public void onPostResume() {
+        getTimeline(true);
+        super.onPostResume();
     }
 
     @Override

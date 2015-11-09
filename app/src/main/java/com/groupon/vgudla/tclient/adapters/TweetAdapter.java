@@ -47,13 +47,13 @@ public class TweetAdapter extends ArrayAdapter<Tweet> {
         } else {
             tweetViewHolder = (TweetViewHolder) convertView.getTag();
         }
-        if (tweet.getUserProfileUrl() != null) {
-            Picasso.with(getContext()).load(tweet.getUserProfileUrl()).into(tweetViewHolder.profileView);
+        if (tweet.getUser().getUserProfileUrl() != null) {
+            Picasso.with(getContext()).load(tweet.getUser().getUserProfileUrl()).into(tweetViewHolder.profileView);
         }
         tweetViewHolder.tvTweet.setText(tweet.getTweet());
         tweetViewHolder.tvTimestamp.setText(TimeHelper.getAbbreviatedTimeSpan(tweet.getTimestamp()));
-        tweetViewHolder.tvUserName.setText(tweet.getUserName());
-        tweetViewHolder.tvScreenName.setText("@" + tweet.getUserScreenName());
+        tweetViewHolder.tvUserName.setText(tweet.getUser().getUserName());
+        tweetViewHolder.tvScreenName.setText("@" + tweet.getUser().getUserScreenName());
         return convertView;
     }
 }
