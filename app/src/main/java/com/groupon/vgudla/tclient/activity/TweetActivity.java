@@ -171,14 +171,16 @@ public class TweetActivity extends AppCompatActivity implements OnComposeListene
     public void onFinishCompose(String inputText) {
         twitterClient.postReplyTweet(new JsonHttpResponseHandler() {
             @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.i(TAG, "Replied to tweet" + tweet.getTweetId());
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 Log.e(TAG, TwitterErrorMessageHelper.getErrorMessage(errorResponse));
                 Log.e(TAG, Log.getStackTraceString(throwable));
+                finish();
             }
         }, inputText, tweet.getTweetId());
     }

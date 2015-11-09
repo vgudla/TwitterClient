@@ -59,7 +59,7 @@ public class ComposeDialog extends DialogFragment {
                 OnComposeListener listener = (OnComposeListener)(activityClass.cast(getActivity()));
                 if (replyId != null) {
                     String tweetableText = etCompose.getText().toString();
-                    etCompose.setText("@" + replyId + tweetableText);
+                    etCompose.setText("@" + replyId + " " + tweetableText);
                 }
                 listener.onFinishCompose(etCompose.getText().toString());
                 dismiss();

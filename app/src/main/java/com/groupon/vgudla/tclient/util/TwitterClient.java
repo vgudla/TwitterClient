@@ -19,8 +19,8 @@ public class TwitterClient extends OAuthBaseClient {
 	public static final Class<? extends Api> REST_API_CLASS = TwitterApi.class;
 	public static final String TAG = "TwitterClient";
 	public static final String REST_URL = "https://api.twitter.com/1.1";
-	public static final String REST_CONSUMER_KEY = "AkJafU5JGmSnjEIiRitd6tw4M";
-	public static final String REST_CONSUMER_SECRET = "tvk1o4B8wdS7JiJRP29UxFicfHxShchIyFAMWl2QFlc2n9rmiZ";
+	public static final String REST_CONSUMER_KEY = "bN5kAzwyWFWUq2cKal7YMdU0h";
+	public static final String REST_CONSUMER_SECRET = "W5QtBWUqplmfeKY9YEIUkLfzAF2Ro2JIFsD1SNd4b6z8si5G6T";
 	public static final String REST_CALLBACK_URL = "oauth://cpstweets";
 
 	public TwitterClient(Context context) {
@@ -62,11 +62,12 @@ public class TwitterClient extends OAuthBaseClient {
 	 * @param tweet
 	 */
 	public void postReplyTweet(AsyncHttpResponseHandler handler, String tweet, long replyId) {
-		String apiUrl = getApiUrl("statuses/update.json?status=") + tweet;
+		String apiUrl = getApiUrl("statuses/update.json");
 		RequestParams params = new RequestParams();
 		params.put("format", "json");
-		params.put("in_reply_to_status_id", replyId);
-		post(handler, apiUrl);
+		params.put("in_reply_to_status_id", "" + replyId);
+		params.put("status", tweet);
+		client.post(apiUrl, params, handler);
 	}
 
 	/**
