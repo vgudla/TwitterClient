@@ -3,6 +3,7 @@ package com.groupon.vgudla.tclient.dialogs;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -17,7 +18,6 @@ import com.groupon.vgudla.tclient.listeners.OnComposeListener;
 
 public class ComposeDialog extends DialogFragment {
     private static final int TWEET_CHARACTER_LIMIT = 140;
-    private Class activityClass;
     private EditText etCompose;
     private TextView tvCharCount;
     private ImageView ivSave;
@@ -33,7 +33,6 @@ public class ComposeDialog extends DialogFragment {
         ComposeDialog composeDialog = new ComposeDialog();
         Bundle args = new Bundle();
         args.putString("reply", replyId);
-        composeDialog.activityClass = activityClass;
         composeDialog.setArguments(args);
         return composeDialog;
     }
@@ -56,7 +55,7 @@ public class ComposeDialog extends DialogFragment {
         ivSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OnComposeListener listener = (OnComposeListener)(activityClass.cast(getActivity()));
+                OnComposeListener listener = (OnComposeListener)getActivity();
                 if (replyId != null) {
                     String tweetableText = etCompose.getText().toString();
                     etCompose.setText("@" + replyId + " " + tweetableText);

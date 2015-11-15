@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.groupon.vgudla.tclient.activity.TimelineActivity">
     <item
+        android:id="@+id/miProfile"
+        android:icon="@drawable/ic_profile"
+        app:showAsAction="ifRoom"
+        android:title="Profile"
+        android:onClick="onProfileView">
+    </item>
+
+    <item
         android:id="@+id/miCompose"
         android:icon="@drawable/compose"
         app:showAsAction="ifRoom"

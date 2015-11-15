@@ -81,7 +81,44 @@ public class TwitterClient extends OAuthBaseClient {
 	public void getHomeTimeLine(AsyncHttpResponseHandler responseHandler, int tweetCount, long maxId,
 								long sinceId, boolean refresh) {
 		String apiUrl = getApiUrl("statuses/home_timeline.json");
+		getTimeline(apiUrl, responseHandler, tweetCount, maxId, sinceId, refresh, null);
+	}
+
+	/**
+	 * Method to retrieve the mentions timeline for a specific user
+	 * @param responseHandler Response Handler for the client
+	 * @param tweetCount Number of tweets to retrieve
+	 * @param maxId Retrieves tweets older than this id
+	 * @param sinceId Retrieves tweets newer than this id
+	 * @param refresh A flag used to indicate what type of request is to be made
+	 */
+	public void getMentionsTimeline(AsyncHttpResponseHandler responseHandler, int tweetCount,
+									long maxId, long sinceId, boolean refresh) {
+		String apiUrl = getApiUrl("statuses/mentions_timeline.json");
+		getTimeline(apiUrl, responseHandler, tweetCount, maxId, sinceId, refresh, null);
+	}
+
+	/**
+	 * Method to retrieve the user timeline for a specific user
+	 * @param responseHandler Response Handler for the client
+	 * @param tweetCount Number of tweets to retrieve
+	 * @param maxId Retrieves tweets older than this id
+	 * @param sinceId Retrieves tweets newer than this id
+	 * @param refresh A flag used to indicate what type of request is to be made
+	 */
+	public void getUserTimeline(AsyncHttpResponseHandler responseHandler, int tweetCount,
+								long maxId, long sinceId, boolean refresh, String screenName) {
+		String apiUrl = getApiUrl("statuses/user_timeline.json");
 		RequestParams params = new RequestParams();
+		params.put("screen_name", screenName);
+		getTimeline(apiUrl, responseHandler, tweetCount, maxId, sinceId, refresh, params);
+	}
+
+	public void getTimeline(String apiUrl, AsyncHttpResponseHandler responseHandler, int tweetCount,
+							long maxId, long sinceId, boolean refresh, RequestParams params) {
+		if (params == null) {
+			params = new RequestParams();
+		}
 		params.put("format", "json");
 		params.put("count", tweetCount);
 		if (!refresh && maxId != -1) {
@@ -92,6 +129,18 @@ public class TwitterClient extends OAuthBaseClient {
 		}
 		Log.d(TAG, "Requested URL:" + params.toString());
 		client.get(apiUrl, params, responseHandler);
+	}
+
+	public void getUserInfo(AsyncHttpResponseHandler handler) {
+		String apiUrl = getApiUrl("account/verify_credentials.json");
+		client.get(apiUrl, null, handler);
+	}
+
+	public void getSpecifiedUserInfo(AsyncHttpResponseHandler handler, String screenName) {
+		String apiUrl = getApiUrl("users/show.json");
+		RequestParams params = new RequestParams();
+		params.put("screen_name", screenName);
+		client.get(apiUrl, params, handler);
 	}
 
 	public void post(AsyncHttpResponseHandler handler, String apiUrl) {

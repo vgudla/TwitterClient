@@ -1,182 +1,52 @@
 package com.groupon.vgudla.tclient.activity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
+import com.astuetz.PagerSlidingTabStrip;
 import com.groupon.vgudla.tclient.R;
-import com.groupon.vgudla.tclient.TwitterApp;
-import com.groupon.vgudla.tclient.adapters.TweetAdapter;
+import com.groupon.vgudla.tclient.adapters.SmartFragmentStatePagerAdapter;
 import com.groupon.vgudla.tclient.dialogs.ComposeDialog;
-import com.groupon.vgudla.tclient.listeners.EndlessScrollListener;
+import com.groupon.vgudla.tclient.fragments.HomeTimelineFragment;
+import com.groupon.vgudla.tclient.fragments.MentionsTimelineFragment;
+import com.groupon.vgudla.tclient.fragments.TweetListFragment;
 import com.groupon.vgudla.tclient.listeners.OnComposeListener;
-import com.groupon.vgudla.tclient.models.Tweet;
-import com.groupon.vgudla.tclient.util.TwitterClient;
-import com.groupon.vgudla.tclient.util.TwitterErrorMessageHelper;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
-import org.apache.http.Header;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TimelineActivity extends AppCompatActivity implements OnComposeListener {
     private static final String TAG = "TimelineActivity";
-    private static final int TWEET_REQUEST_COUNT = 100;
-    private TwitterClient twitterClient;
-    private ListView lvTimeline;
-    private List<Tweet> tweets = new ArrayList<>();
-    private TweetAdapter tweetAdapter;
-    private SwipeRefreshLayout swipeContainer;
-    private ProgressBar progressBarFooter;
-    private long maxId=-1;
-    private long sinceId = -1;
+    private SmartFragmentStatePagerAdapter tweetPagerAdapter;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
-        setupViews();
-        getTimeline(false);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        tweetPagerAdapter = new TweetsPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(tweetPagerAdapter);
+        PagerSlidingTabStrip pagerSlidingTabStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        pagerSlidingTabStrip.setViewPager(viewPager);
 
     }
 
-    private void setupViews() {
-        twitterClient = TwitterApp.getRestClient();
-        setupTimelineView();
-        setupSwipeContainer();
+    public void onCompose(MenuItem item) {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeDialog composeDialog = ComposeDialog.newInstance(TimelineActivity.class, null);
+        composeDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
+        composeDialog.show(fm, "fragment_edit_name");
     }
 
-    private void setupSwipeContainer() {
-        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
-        // Setup refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                getTimeline(true);
-            }
-        });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
-    }
-
-    private void setupTimelineView() {
-        lvTimeline = (ListView) findViewById(R.id.lvTimeline);
-        setupFooterProgressBar(lvTimeline);
-
-        lvTimeline.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Tweet tweet = (Tweet) parent.getItemAtPosition(position);
-                Intent tweetIntent = new Intent(TimelineActivity.this, TweetActivity.class);
-                tweetIntent.putExtra("tweet", tweet);
-                startActivity(tweetIntent);
-            }
-        });
-
-        lvTimeline.setOnScrollListener(new EndlessScrollListener() {
-            @Override
-            public boolean onLoadMore(int page, int totalItemsCount) {
-                getTimeline(false);
-                return true;
-            }
-        });
-        lvTimeline.setItemsCanFocus(true);
-    }
-
-    // Adds footer to the list default hidden progress
-    private void setupFooterProgressBar(ListView lvItems) {
-        // Inflate the footer
-        View footer = getLayoutInflater().inflate(R.layout.footer_progress, null);
-        // Find the progressbar within footer
-        progressBarFooter = (ProgressBar) footer.findViewById(R.id.pbFooterLoading);
-        // Add footer to ListView before setting adapter
-        lvItems.addFooterView(footer);
-        // Set the adapter AFTER adding footer
-        tweetAdapter = new TweetAdapter(this, tweets);
-        lvTimeline.setAdapter(tweetAdapter);
-    }
-
-    // Show progress
-    private void showProgressBar() {
-        progressBarFooter.setVisibility(View.VISIBLE);
-    }
-
-    // Hide progress
-    private void hideProgressBar() {
-        progressBarFooter.setVisibility(View.GONE);
-    }
-
-    private void getTimeline(final boolean refresh) {
-        if (!isNetworkAvailable()) {
-            Toast.makeText(this, "Network not available", Toast.LENGTH_LONG).show();
-            tweetAdapter.addAll(Tweet.getAll());
-            return;
-        }
-        JsonHttpResponseHandler responseHandler = new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                List<Tweet> tweetList = Tweet.fromJSONArray(response);
-                if (refresh) {
-                    for (int i = tweetList.size()-1; i >= 0; i--) {
-                        tweetAdapter.insert(tweetList.get(i), 0);
-                    }
-                } else {
-                    tweetAdapter.addAll(tweetList);
-                }
-                swipeContainer.setRefreshing(false);
-                sinceId = tweetAdapter.getItem(0).getTweetId();
-                maxId = tweetAdapter.getItem(tweetAdapter.getCount()-1).getTweetId();
-                hideProgressBar();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                Log.e(TAG, "Error while retrieving timeline" + throwable.getStackTrace());
-                hideProgressBar();
-            }
-        };
-
-        //We use the maxId when retrieving older tweets or when a user scrolls down. On refresh,
-        //we need to use the sinceId to get latest tweets.
-        if (maxId == -1) {
-            tweetAdapter.clear();
-        } else if (refresh) {
-            Tweet newestTweet = tweetAdapter.getItem(0);
-            sinceId = newestTweet.getTweetId();
-        } else {
-            Tweet oldestTweet = tweetAdapter.getItem(tweetAdapter.getCount()-1);
-            maxId = oldestTweet.getTweetId();
-        }
-        twitterClient.getHomeTimeLine(responseHandler, TWEET_REQUEST_COUNT, maxId, sinceId, refresh);
-        showProgressBar();
-    }
-
-    //Check to see if network is available before making external service calls
-    private Boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
+    public void onProfileView(MenuItem item) {
+        Intent profileIntent = new Intent(this, UserProfileActivity.class);
+        startActivity(profileIntent);
     }
 
     @Override
@@ -193,37 +63,55 @@ public class TimelineActivity extends AppCompatActivity implements OnComposeList
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        if (id == R.id.miProfile) {
+            return true;
+        }
+
         if (id == R.id.miCompose) {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
-    }
-
-    public void onCompose(MenuItem item) {
-        FragmentManager fm = getSupportFragmentManager();
-        ComposeDialog composeDialog = ComposeDialog.newInstance(TimelineActivity.class, null);
-        composeDialog.setStyle(DialogFragment.STYLE_NORMAL, R.style.AppTheme);
-        composeDialog.show(fm, "fragment_edit_name");
-    }
-
-    public void onPostResume() {
-        getTimeline(true);
-        super.onPostResume();
     }
 
     @Override
     public void onFinishCompose(String inputText) {
-        twitterClient.postTweet(new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                getTimeline(true);
-            }
+        TweetListFragment tweetListFragment =
+                (TweetListFragment)tweetPagerAdapter.getRegisteredFragment(viewPager.getCurrentItem());
+        tweetListFragment.onFinishCompose(inputText);
+    }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.e(TAG, TwitterErrorMessageHelper.getErrorMessage(errorResponse));
-                Log.e(TAG, Log.getStackTraceString(throwable));
+    public static class TweetsPagerAdapter extends SmartFragmentStatePagerAdapter {
+        private final String[] TAB_TITLES = {"Home", "Mentions"};
+
+        public TweetsPagerAdapter(FragmentManager fragmentManager) {
+            super(fragmentManager);
+        }
+
+        // Returns total number of pages
+        @Override
+        public int getCount() {
+            return TAB_TITLES.length;
+        }
+
+        // Returns the fragment to display for that page
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0: // Fragment # 0 - This will show FirstFragment
+                    return new HomeTimelineFragment();
+                case 1: // Fragment # 0 - This will show FirstFragment different title
+                    return new MentionsTimelineFragment();
+                default:
+                    return null;
             }
-        }, inputText);
+        }
+
+        // Returns the page title for the top indicator
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return TAB_TITLES[position];
+        }
+
     }
 }
