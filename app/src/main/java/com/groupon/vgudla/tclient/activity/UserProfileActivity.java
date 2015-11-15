@@ -34,7 +34,8 @@ public class UserProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
         twitterClient = TwitterApp.getRestClient();
-        twitterClient.getUserInfo(new JsonHttpResponseHandler() {
+        String screenName = getIntent().getStringExtra("screen_name");
+        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 user = User.fromJSONObject(response);
@@ -42,6 +43,7 @@ public class UserProfileActivity extends AppCompatActivity {
                 tvFollowing.setText(user.getFollowing() + " following");
                 tvDescription.setText(user.getDescription());
                 tvUserName.setText(user.getUserName());
+                getSupportActionBar().setTitle("@" + user.getUserScreenName());
                 Picasso.with(UserProfileActivity.this).load(user.getUserProfileUrl()).into(rvProfileView);
             }
 
@@ -49,9 +51,12 @@ public class UserProfileActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
             }
-        });
-        String screenName = getIntent().getStringExtra("screen_name");
-        getSupportActionBar().setTitle("@" + screenName);
+        };
+        if (screenName == null) {
+            twitterClient.getUserInfo(handler);
+        } else {
+            twitterClient.getSpecifiedUserInfo(handler, screenName);
+        }
         setupViews();
         if (savedInstanceState == null) {
             UserTimelineFragment userTimelineFragment = UserTimelineFragment.getInstance(screenName);

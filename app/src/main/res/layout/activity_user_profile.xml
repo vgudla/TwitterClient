@@ -14,8 +14,8 @@
         android:id="@+id/rlUserHeader">
 
         <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:id="@+id/rvProfileView"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
@@ -31,33 +31,36 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:id="@+id/rvUserName"
             android:textStyle="bold"
-            android:textSize="10sp"
+            android:textSize="20sp"
+            android:paddingTop="5dp"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="20dp"
             android:layout_marginLeft="25dp"
             android:layout_toRightOf="@+id/rvProfileView" />
 
         <TextView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/tvDescription"
+            android:textSize="12sp"
             android:layout_below="@+id/rvUserName"
             android:layout_toRightOf="@+id/rvProfileView"
             android:layout_marginLeft="50dp"/>
 
 
         <TextView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/tvFollowers"
+            android:textSize="10sp"
             android:layout_below="@+id/tvDescription"
             android:layout_toRightOf="@+id/rvProfileView"
-            android:layout_marginLeft="50dp"/>
+            android:layout_marginLeft="10dp"/>
 
         <TextView
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:id="@+id/tvFollowing"
+            android:textSize="10sp"
             android:layout_below="@+id/tvDescription"
             android:layout_toRightOf="@+id/tvFollowers"
             android:layout_marginLeft="50dp" />
