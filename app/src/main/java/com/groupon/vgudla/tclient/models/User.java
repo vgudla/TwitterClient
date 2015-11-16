@@ -29,6 +29,8 @@ public class User extends Model implements Parcelable{
     private int following;
     @Column(name = "description")
     private String description;
+    @Column(name = "tweet_count")
+    private int tweetCount;
 
     //default constructor needed for Active Android
     public User() {
@@ -36,7 +38,7 @@ public class User extends Model implements Parcelable{
     }
 
     public User(String userProfileUrl, String userName, long userId, String userScreenName,
-                int followersCount, int following, String description) {
+                int followersCount, int following, String description, int tweetCount) {
         super();
         this.userProfileUrl = userProfileUrl;
         this.userName = userName;
@@ -45,6 +47,7 @@ public class User extends Model implements Parcelable{
         this.followersCount = followersCount;
         this.following = following;
         this.description = description;
+        this.tweetCount = tweetCount;
     }
 
 
@@ -76,6 +79,10 @@ public class User extends Model implements Parcelable{
         return description;
     }
 
+    public int getTweetCount() {
+        return tweetCount;
+    }
+
     public static User fromJSONObject(JSONObject userObject) {
         String userProfileUrl = null;
         String userName = null;
@@ -84,6 +91,7 @@ public class User extends Model implements Parcelable{
         int followerCount = 0;
         int following = 0;
         String description = null;
+        int tweetCount = 0;;
         try {
             userProfileUrl = userObject.getString("profile_image_url");
             userName = userObject.getString("name");
@@ -92,12 +100,13 @@ public class User extends Model implements Parcelable{
             followerCount = userObject.getInt("followers_count");
             following = userObject.getInt("friends_count");
             description = userObject.getString("description");
+            tweetCount = userObject.getInt("statuses_count");
 
         } catch (JSONException e) {
             Log.e("User", e.getMessage());
         }
         User user = new User(userProfileUrl, userName, userId, userScreenName,
-                followerCount, following, description);
+                followerCount, following, description, tweetCount);
         user.save();
         return user;
     }
@@ -120,6 +129,7 @@ public class User extends Model implements Parcelable{
         dest.writeInt(this.followersCount);
         dest.writeInt(this.following);
         dest.writeString(this.description);
+        dest.writeInt(this.tweetCount);
     }
 
     private User(Parcel in) {
@@ -130,6 +140,7 @@ public class User extends Model implements Parcelable{
         this.followersCount = in.readInt();
         this.following = in.readInt();
         this.description = in.readString();
+        this.tweetCount = in.readInt();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
