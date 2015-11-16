@@ -1,0 +1,49 @@
+package com.groupon.vgudla.tclient.activity;
+
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import com.groupon.vgudla.tclient.R;
+import com.groupon.vgudla.tclient.fragments.SearchTimelineFragment;
+import com.groupon.vgudla.tclient.fragments.UserTimelineFragment;
+
+public class SearchActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_search);
+        String query = getIntent().getStringExtra("query");
+        if (savedInstanceState == null) {
+            SearchTimelineFragment searchTimelineFragment = SearchTimelineFragment.getInstance(query);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.flSearch, searchTimelineFragment);
+            ft.commit();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+}

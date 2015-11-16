@@ -21,15 +21,15 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-* [ ] User can view following / followers list through the profile
-* [ ] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
-* [ ] When a network request is sent, user sees an [indeterminate progress indicator](http://guides.codepath.com/android/Handling-ProgressBars#progress-within-actionbar)
+* [X] User can view following / followers list through the profile
+* [X] Implements robust error handling, [check if internet is available](http://guides.codepath.com/android/Sending-and-Managing-Network-Requests#checking-for-network-connectivity), handle error cases, network failures
+* [X] When a network request is sent, user sees an [indeterminate progress indicator](http://guides.codepath.com/android/Handling-ProgressBars#progress-within-actionbar)
 * [X] User can **"reply" to any tweet on their home timeline**
-  * [ ] The user that wrote the original tweet is automatically "@" replied in compose
+  * [X] The user that wrote the original tweet is automatically "@" replied in compose
 * [X] User can click on a tweet to be **taken to a "detail view"** of that tweet
  * [X] User can take favorite (and unfavorite) or retweet actions on a tweet
 * [ ] Improve the user interface and theme the app to feel twitter branded
-* [ ] User can **search for tweets matching a particular query** and see results
+* [X] User can **search for tweets matching a particular query** and see results
 
 The following **bonus** features are implemented:
 
@@ -43,7 +43,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<img src='http://i.giphy.com/xTiTnE3X8jEJFmEA92.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
@@ -55,10 +55,12 @@ Describe any challenges encountered while building the app.
 
 - [Android Async HTTP](https://github.com/loopj/android-async-http) - Simple asynchronous HTTP requests with JSON parsing
 - [Picasso](http://square.github.io/picasso/) - Image loading and caching library for Android
+- [Active Android](https://github.com/pardom/ActiveAndroid) - Android ORM persistence
+- [PagerSlidingTabStrip](https://github.com/astuetz/PagerSlidingTabStrip) - Navigation aid for viewpager
 
 ## License
 
-    Copyright [2015] [name of copyright owner]
+    Copyright [2015] [Vinesh Gudla]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

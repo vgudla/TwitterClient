@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +50,11 @@ public class ComposeDialog extends DialogFragment {
         replyId = getArguments().getString("reply");
 
         etCompose = (EditText) view.findViewById(R.id.etCompose);
+        if (replyId != null) {
+            etCompose.setText("@" + replyId);
+            Selection.setSelection(etCompose.getText(), etCompose.getText().length());
+        }
+
         tvCharCount = (TextView) view.findViewById(R.id.tvCharCount);
         ivSave = (ImageView) view.findViewById(R.id.ivSave);
         ivSave.setOnClickListener(new View.OnClickListener() {
@@ -57,7 +63,7 @@ public class ComposeDialog extends DialogFragment {
                 OnComposeListener listener = (OnComposeListener)getActivity();
                 if (replyId != null) {
                     String tweetableText = etCompose.getText().toString();
-                    etCompose.setText("@" + replyId + " " + tweetableText);
+                    etCompose.setText(tweetableText);
                 }
                 listener.onFinishCompose(etCompose.getText().toString());
                 dismiss();

@@ -55,6 +55,7 @@
         android:id="@+id/itFollowers"
         android:textSize="10sp"
         android:layout_below="@+id/itProfileView"
+        android:layout_marginTop="10dp"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="10dp"/>
 
@@ -63,8 +64,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/itFollowing"
         android:textSize="10sp"
-        android:layout_below="@+id/itDescription"
+        android:layout_below="@+id/itProfileView"
         android:layout_toRightOf="@+id/itFollowers"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp" />
 
     <TextView
@@ -72,7 +74,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/itStatuses"
         android:textSize="10sp"
-        android:layout_below="@+id/itDescription"
+        android:layout_below="@+id/itProfileView"
         android:layout_toRightOf="@+id/itFollowing"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp" />
 </RelativeLayout>

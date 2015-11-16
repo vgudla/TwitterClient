@@ -11,5 +11,6 @@
     <string name="text_compose_dialog">Compose</string>
     <string name="text_compose_hint">Go forth and tweet</string>
     <string name="title_activity_user_profile">UserProfileActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
 
 </resources>
